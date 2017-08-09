@@ -1,0 +1,469 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "AWS Cloudformation template to create an EC2 instance, installs Data Lake walkthrough webapp and creates ELB. **WARNING** This template creates an Amazon EC2 instance. You will be billed for the AWS resources used if you create a stack from this template.",
+    "Parameters": {
+        "InstanceType": {
+            "Description": "The EC2 instance type for the Qubole Quick Start Walkthrough Web server.",
+            "Type": "String",
+            "Default": "t2.micro",
+            "AllowedValues": [
+                "t2.nano",
+                "t2.micro",
+                "t2.small",
+                "t2.medium",
+                "t2.large",
+                "m3.large",
+                "m3.xlarge",
+                "m3.2xlarge"
+            ],
+            "ConstraintDescription": "must be a valid EC2 instance type."
+        },
+        "KeyName": {
+            "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instance.",
+            "Type": "AWS::EC2::KeyPair::KeyName",
+            "ConstraintDescription": "Can contain only ASCII characters."
+        },
+        "VpcId": {
+            "Description": "ID of your existing VPC (e.g., vpc-0343606e).",
+            "Type": "AWS::EC2::VPC::Id"
+        },
+        "VPCCIDR": {
+            "Description": "CIDR block for the VPC",
+            "Type": "String"
+        },
+        "PrivateSubnet1ID": {
+            "Description": "ID of the private subnet 1 that you want to provision the Web server into (e.g., subnet-a0246dcd).",
+            "Type": "AWS::EC2::Subnet::Id"
+        },
+        "PrivateSubnet2ID": {
+            "Description": "ID of the private subnet 2 that you want to provision the Web server into (e.g., subnet-e3246d8e).",
+            "Type": "AWS::EC2::Subnet::Id"
+        },
+        "PublicSubnet1ID": {
+            "Description": "ID of the public subnet 1 that you want to provision the elastic load balancer into (e.g., subnet-a0246dcd).",
+            "Type": "AWS::EC2::Subnet::Id"
+        },
+        "PublicSubnet2ID": {
+            "Description": "ID of the public subnet 2 that you want to provision the elastic load balancer into (e.g., subnet-e3246d8e).",
+            "Type": "AWS::EC2::Subnet::Id"
+        },
+        "ApplicationUsername": {
+            "Description": "The user name for Qubole Quick Start Walkthrough web application. User name must contain 1 to 64 ASCII characters.",
+            "Type": "String"
+        },
+        "ApplicationPassword": {
+            "Description": "The password for Qubole Quick Start Walkthrough web application. Password must contain 8 to 64 ASCII characters. It must contain 1 uppercase letter, 1 lowercase letter, and 1 number.",
+            "NoEcho": "true",
+            "Type": "String"
+        },
+        "RDSUsername": {
+            "Description": "The user name that is associated with the master user account for the RDS that was created.",
+            "Type": "String"
+        },
+        "RDSPassword": {
+            "Description": "The password that is associated with the master user account for the RDS that was created.",
+            "NoEcho": "true",
+            "Type": "String"
+        },
+        "RDSHostname": {
+            "Description": "The hostname for the RDS instance.",
+            "Type": "String"
+        },
+        "RDSDatabaseName": {
+            "Description": "The name of the database created when the RDS instance was provisioned.",
+            "Type": "String"
+        },
+        "RDSPort": {
+            "Description": "The port that the RDS instance listens on.",
+            "Type": "Number"
+        },
+        "BastionPublicDnsName": {
+            "Description": "The public DNS name for the bastion host.",
+            "Type": "String"
+        },
+        "InstanceProfileName": {
+            "Description": "The name of the instance profile to create.",
+            "Type": "String"
+        },
+        "NumWebServerInstances": {
+            "Description": "The number or web server instances in the Auto scaling group.",
+            "Type": "Number"
+        },
+        "QSS3BucketName": {
+            "Description": "S3 bucket name for the Quick Start assets. Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
+            "Type": "String"
+        },
+        "QSS3KeyPrefix": {
+            "Description": "S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/). It cannot start or end with forward slash (/) because they are automatically appended.",
+            "Type": "String"
+        },
+        "DatasetS3BucketName": {
+            "Description": "Dataset bucket name for the Quick Start dataset. Dataset bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
+            "Type": "String"
+        },
+        "DatasetS3KeyPrefix": {
+            "Description": "S3 key prefix for the Quick Start dataset. Dataset key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/). It cannot start or end with forward slash (/) because they are automatically appended.",
+            "Type": "String"
+        },
+        "QuboleApiToken": {
+            "Type": "String",
+            "Description": "Qubole account API token."
+        },
+        "HadoopMasterInstanceType": {
+            "Description": "The EC2 instance type for Hadoop master node.",
+            "Type": "String",
+            "Default": "m1.large",
+            "AllowedValues": [
+                "m1.large",
+                "m1.xlarge",
+                "m2.xlarge",
+                "m2.2xlarge",
+                "m2.4xlarge",
+                "m3.xlarge",
+                "m3.2xlarge"
+            ]
+        },
+        "HadoopSlaveInstanceType": {
+            "Description": "The EC2 instance type for Hadoop slave node.",
+            "Type": "String",
+            "Default": "m1.xlarge",
+            "AllowedValues": [
+                "m1.large",
+                "m1.xlarge",
+                "m2.xlarge",
+                "m2.2xlarge",
+                "m2.4xlarge",
+                "m3.xlarge",
+                "m3.2xlarge"
+            ]
+        },
+        "HadoopMaxNodesCount": {
+            "Description": "The maximum number of Hadoop nodes.",
+            "Type": "Number",
+            "Default": "2"
+        },
+        "SparkMasterInstanceType": {
+            "Description": "The EC2 instance type for Spark master node.",
+            "Type": "String",
+            "Default": "m3.xlarge",
+            "AllowedValues": [
+                "m1.large",
+                "m1.xlarge",
+                "m2.xlarge",
+                "m2.2xlarge",
+                "m2.4xlarge",
+                "m3.xlarge",
+                "m3.2xlarge"
+            ]
+        },
+        "SparkSlaveInstanceType": {
+            "Description": "The EC2 instance type for Spark slave node.",
+            "Type": "String",
+            "Default": "m3.2xlarge",
+            "AllowedValues": [
+                "m1.large",
+                "m1.xlarge",
+                "m2.xlarge",
+                "m2.2xlarge",
+                "m2.4xlarge",
+                "m3.xlarge",
+                "m3.2xlarge"
+            ]
+        },
+        "SparkMaxNodesCount": {
+            "Description": "The maximum number of Spark nodes.",
+            "Type": "Number",
+            "Default": "2"
+        }
+    },
+    "Mappings": {
+        "RegionMap": {
+            "us-east-1": {
+                "AMI": "ami-c58c1dd3"
+            },
+            "us-west-2": {
+                "AMI": "ami-4836a428"
+            }
+        }
+    },
+    "Resources": {
+        "WebServerAutoScalingGroup": {
+            "Type": "AWS::AutoScaling::AutoScalingGroup",
+            "Properties": {
+                "LaunchConfigurationName": {
+                    "Ref": "WebServerLaunchConfiguration"
+                },
+                "VPCZoneIdentifier": [
+                    {
+                        "Ref": "PrivateSubnet1ID"
+                    },
+                    {
+                        "Ref": "PrivateSubnet2ID"
+                    }
+                ],
+                "MinSize": {
+                    "Ref": "NumWebServerInstances"
+                },
+                "MaxSize": {
+                    "Ref": "NumWebServerInstances"
+                },
+                "Cooldown": "300",
+                "DesiredCapacity": {
+                    "Ref": "NumWebServerInstances"
+                },
+                "LoadBalancerNames": [{"Ref": "ElasticLoadBalancer"}],
+                "Tags": [{
+                     "Key": "Name",
+                     "Value": "QuboleWalkthroughWebapp",
+                     "PropagateAtLaunch": "true"
+                }]
+            },
+            "CreationPolicy": {
+                "ResourceSignal": {
+                    "Count": {
+                        "Ref": "NumWebServerInstances"
+                    },
+                    "Timeout": "PT15M"
+                }
+            }
+        },
+        "WebServerLaunchConfiguration": {
+            "Type": "AWS::AutoScaling::LaunchConfiguration",
+            "Metadata": {
+                "Comment": "Install Flask application",
+                "AWS::CloudFormation::Init": {
+                    "config": {
+                        "packages": {
+                            "yum": {
+                                "python34": [],
+                                "python34-pip": [],
+                                "python34-devel": [],
+                                "postgresql93-devel": [],
+                                "gcc": [],
+                                "mysql": []
+                            }
+                        },
+                        "files": {
+                            "/etc/production.ini": {
+                                "content": {
+                                    "Fn::Join": [
+                                        "\n",
+                                        [
+                                            "[webapp]",
+                                            "port=2000",
+                                            { "Fn::Sub": "webapp_username=${ApplicationUsername}" },
+                                            { "Fn::Sub": "webapp_password=${ApplicationPassword}" },
+                                            "[aws]",
+                                            { "Fn::Sub": "region_name=${AWS::Region}" },
+                                            { "Fn::Sub": "stack_name=${AWS::StackName}" },
+                                            "[qubole]",
+                                            { "Fn::Sub": "qubole_api_token=${QuboleApiToken}" },
+                                            { "Fn::Sub": "cluster_vpc_id=${VpcId}" },
+                                            { "Fn::Sub": "cluster_subnet_id=${PrivateSubnet1ID}" },
+                                            { "Fn::Sub": "bastion_node_public_dns=${BastionPublicDnsName}" },
+                                            "qubole_data_store_name=quickstart_datastore",
+                                            "qubole_database_name=quboledb",
+                                            { "Fn::Sub": "qubole_web_logs_s3_url=https://s3.amazonaws.com/${DatasetS3BucketName}/${DatasetS3KeyPrefix}/retail-dataset/web_logs/web_logs" },
+                                            { "Fn::Sub": "qubole_web_logs_s3_dir=s3://${DatasetS3BucketName}/${DatasetS3KeyPrefix}/retail-dataset/web_logs/" },
+                                            "[rds]",
+                                            "rds_database_type=mysql",
+                                            { "Fn::Sub": "rds_database_name=${RDSDatabaseName}" },
+                                            { "Fn::Sub": "rds_username=${RDSUsername}" },
+                                            { "Fn::Sub": "rds_password=${RDSPassword}" },
+                                            { "Fn::Sub": "rds_hostname=${RDSHostname}" },
+                                            { "Fn::Sub": "rds_port=${RDSPort}" },
+                                            "[hadoop]",
+                                            "hadoop_cluster_name=hadoop2",
+                                            { "Fn::Sub": "hadoop_master_instance_type=${HadoopMasterInstanceType}" },
+                                            { "Fn::Sub": "hadoop_slave_instance_type=${HadoopSlaveInstanceType}" },
+                                            { "Fn::Sub": "hadoop_max_nodes_count=${HadoopMaxNodesCount}" },
+                                            "[spark]",
+                                            "spark_cluster_name=spark",
+                                            "spark_notebook_name=spark_quickstart",
+                                            "spark_dashboard_notebook_name=dashboard_quickstart",
+                                            { "Fn::Sub": "spark_notebook_s3_url=https://s3.amazonaws.com/${DatasetS3BucketName}/${DatasetS3KeyPrefix}/spark_quickstart.json" },
+                                            { "Fn::Sub": "spark_dashboard_notebook_s3_url=https://s3.amazonaws.com/${DatasetS3BucketName}/${DatasetS3KeyPrefix}/dashboard_quickstart.json" },
+                                            { "Fn::Sub": "spark_master_instance_type=${SparkMasterInstanceType}" },
+                                            { "Fn::Sub": "spark_slave_instance_type=${SparkSlaveInstanceType}" },
+                                            { "Fn::Sub": "spark_max_nodes_count=${SparkMaxNodesCount}" }
+                                        ]
+                                    ]
+                                },
+                                "mode": "000444",
+                                "owner": "ec2-user",
+                                "group": "ec2-user"
+                            },
+                            "/etc/bootstrap.sh": {
+                                "content": {
+                                    "Fn::Join": [
+                                        "\n",
+                                        [
+                                            "# Install python requirements",
+                                            "pip-3.4 install flask==0.12.1",
+                                            "pip-3.4 install awscli==1.11.84",
+                                            "pip-3.4 install psycopg2==2.7.1",
+                                            "pip-3.4 install jinja2==2.9.6",
+                                            "pip-3.4 install boto3==1.4.4",
+                                            "pip-3.4 install qds-sdk==1.9.7",
+                                            "alias aws=/usr/local/bin/aws",
+                                            "cd /home/ec2-user",
+                                            { "Fn::Sub": "aws s3 sync s3://${QSS3BucketName}/${QSS3KeyPrefix} ." },
+                                            { "Fn::Sub": "aws s3 cp s3://${DatasetS3BucketName}/${DatasetS3KeyPrefix}/retail-dataset/qusql_2017-07-20.sql ."},
+                                            "cd /home/ec2-user/assets",
+                                            "python3.4 setup.py develop",
+                                            "chown -R ec2-user:ec2-user /home/ec2-user"
+                                        ]
+                                    ]
+                                },
+                                "mode": "000770",
+                                "owner": "ec2-user",
+                                "group": "ec2-user"
+                            }
+                        },
+                        "commands": {
+                            "1_run_bootstrap": {
+                                "command": "sh /etc/bootstrap.sh"
+                            },
+                            "2_import_database": {
+                                "command": {
+                                    "Fn::Sub": "mysql -u${RDSUsername} -p${RDSPassword} -h ${RDSHostname} -P ${RDSPort} -D ${RDSDatabaseName} < /home/ec2-user/qusql_2017-07-20.sql"
+                                 }
+                            },
+                            "4_run_webserver": {
+                                "command": "runuser -l ec2-user -c \"python3.4 /home/ec2-user/assets/web/app.py --config /etc/production.ini > server.log 2>&1 &\""
+                            }
+                        }
+                    }
+                }
+            },
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "IamInstanceProfile": {
+                    "Ref": "InstanceProfileName"
+                },
+                "ImageId": {
+                    "Fn::FindInMap": [
+                        "RegionMap",
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "AMI"
+                    ]
+                },
+                "SecurityGroups": [
+                    {
+                        "Ref": "InstanceSecurityGroup"
+                    }
+                ],
+                "InstanceType": {
+                    "Ref": "InstanceType"
+                },
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "yum update -y\n",
+                                "yum install -y aws-cfn-bootstrap\n",
+                                "# Install the files and packages from the metadata\n",
+                                {
+                                    "Fn::Sub": "/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource WebServerLaunchConfiguration --region ${AWS::Region}\n"
+                                },
+                                "# Signal the status from cfn-init\n",
+                                {
+                                    "Fn::Sub": "/opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource WebServerAutoScalingGroup --region ${AWS::Region}\n"
+                                }
+                            ]
+                        ]
+                    }
+                }
+            }
+        },
+        "InstanceSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VpcId"
+                },
+                "GroupDescription": "Enable SSH access from Bastion via port 22, and from ELB via port range 1024-65535",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "22",
+                        "ToPort": "22",
+                        "CidrIp": {
+                            "Ref": "VPCCIDR"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "1024",
+                        "ToPort": "65535",
+                        "SourceSecurityGroupId": {
+                            "Ref": "ELBSecurityGroup"
+                        }
+                    }
+                ]
+            }
+        },
+        "ElasticLoadBalancer": {
+            "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+            "Properties": {
+                "Listeners": [
+                    {
+                        "LoadBalancerPort": "80",
+                        "InstancePort": "2000",
+                        "Protocol": "HTTP"
+                    }
+                ],
+                "Subnets": [
+                    {
+                        "Ref": "PublicSubnet1ID"
+                    },
+                    {
+                        "Ref": "PublicSubnet2ID"
+                    }
+                ],
+                "SecurityGroups": [
+                    {
+                        "Ref": "ELBSecurityGroup"
+                    }
+                ],
+                "ConnectionSettings": {
+                    "IdleTimeout": "180"
+                }
+            }
+        },
+        "ELBSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VpcId"
+                },
+                "GroupDescription": "Enable Elastic Load Balancer access via port 80",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ]
+            }
+        }
+    },
+    "Outputs": {
+        "URL": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "ElasticLoadBalancer",
+                    "CanonicalHostedZoneName"
+                ]
+            },
+            "Description": "ELB URL"
+        }
+    }
+}

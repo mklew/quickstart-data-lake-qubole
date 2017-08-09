@@ -18,10 +18,3 @@ global:
     - us-west-2
   reporting: true
  
-tests:
-  quickstart-data-lake-qubolet1:
-    parameter_input: quickstart-data-lake-qubole-example-params1.json
-    template_file: quickstart-data-lake-qubole-example1.template
-  quickstart-data-lake-qubolet2:
-    parameter_input: quickstart-data-lake-qubole-example-params2.json
-    template_file: quickstart-data-lake-qubole-example2.template

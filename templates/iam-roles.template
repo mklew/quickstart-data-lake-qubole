@@ -1,0 +1,332 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Resources": {
+        "QuboleInstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Roles": [
+                    {
+                        "Ref": "QuboleRole"
+                    }
+                ],
+                "InstanceProfileName": {"Fn::Join": ["-", ["QuboleRole", {"Ref": "AWS::Region"}, {"Ref": "AWS::AccountId"} ]]}
+            }
+        },
+        "QuboleRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "RoleName": {"Fn::Join": ["-", ["QuboleRole", {"Ref": "AWS::Region"}, {"Ref": "AWS::AccountId"} ]]},
+                "AssumeRolePolicyDocument": {
+                    "Version" : "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [ "ec2.amazonaws.com" ]
+                            },
+                            "Action": [ "sts:AssumeRole" ]
+                        },
+                        {
+                           "Effect": "Allow",
+                           "Principal": { "AWS": {"Fn::Sub": "arn:aws:iam::${QuboleAWSAccountId}:root" } },
+                           "Action": "sts:AssumeRole",
+                           "Condition": { "StringEquals": {"sts:ExternalId":[{"Ref": "QuboleExternalId"}]} }
+                        }
+                    ]
+                },
+                "Path": "/",
+                "Policies": [
+                    {
+                        "PolicyName": "EC2Policy",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                      "ec2:AuthorizeSecurityGroupEgress",
+                                      "ec2:AuthorizeSecurityGroupIngress",
+                                      "ec2:AttachVolume",
+                                      "ec2:CancelSpotInstanceRequests",
+                                      "ec2:CreateSecurityGroup",
+                                      "ec2:CreateTags",
+                                      "ec2:CreateVolume",
+                                      "ec2:DeleteSecurityGroup",
+                                      "ec2:DeleteTags",
+                                      "ec2:DeleteVolume",
+                                      "ec2:Describe*",
+                                      "ec2:DescribeVolume",
+                                      "ec2:DetachVolume",
+                                      "ec2:ImportKeyPair",
+                                      "ec2:ModifyInstanceAttribute",
+                                      "ec2:RequestSpotInstances",
+                                      "ec2:RunInstances",
+                                      "ec2:StartInstances",
+                                      "ec2:StopInstances",
+                                      "ec2:TerminateInstances"
+                                    ],
+                                    "Resource": ["*"]
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": ["sts:DecodeAuthorizationMessage"],
+                                    "Resource": ["*"]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "PolicyName": "S3Policy",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "s3:DeleteObject",
+                                    "s3:GetObject",
+                                    "s3:GetObjectAcl",
+                                    "s3:PutObject",
+                                    "s3:PutObjectAcl",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation",
+                                    "s3:ListBucket"
+                                ],
+                                "Resource": [
+                                    { "Fn::Sub": "arn:aws:s3:::${QuboleBucketName}/*" },
+                                    { "Fn::Sub": "arn:aws:s3:::${QuboleBucketName}" }
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "s3:GetObject",
+                                    "s3:ListBucket"
+                                ],
+                                "Resource": [ "*" ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "s3:ListAllMyBuckets"
+                                ],
+                                "Resource": [ "*" ]
+                            }
+                            ]
+                        }
+                    },
+                    {
+                        "PolicyName": "CrossAccountPolicy",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": "iam:GetInstanceProfile",
+                                    "Resource": { "Fn::Sub": ["arn:aws:iam::${AWS::AccountId}:instance-profile/${RoleName}", { "RoleName": {"Fn::Join": ["-", ["QuboleRole", {"Ref": "AWS::Region"}, {"Ref": "AWS::AccountId"} ]]}}] }
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": "iam:PassRole",
+                                    "Resource": { "Fn::Sub": ["arn:aws:iam::${AWS::AccountId}:role/${RoleName}",  { "RoleName": {"Fn::Join": ["-", ["QuboleRole", {"Ref": "AWS::Region"}, {"Ref": "AWS::AccountId"} ]]} }] }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "QuboleBastionRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version" : "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": ["ec2.amazonaws.com"]
+                            },
+                            "Action": ["sts:AssumeRole"]
+                        }
+                    ]
+                },
+                "Path": "/",
+                "Policies": [
+                    {
+                        "PolicyName": "EC2Policy",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Action": [
+                                        "ec2:AssociateAddress",
+                                        "ec2:DescribeAddresses"
+                                    ],
+                                    "Resource": [
+                                        "*"
+                                    ],
+                                    "Effect": "Allow"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "QuboleBastionInstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Roles": [
+                    {
+                        "Ref": "QuboleBastionRole"
+                    }
+                ]
+            }
+        },
+        "InstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Roles": [
+                    {
+                        "Ref": "InstanceRole"
+                    }
+                ]
+            }
+        },
+        "InstanceRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "ec2.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "Policies": [
+                    {
+                        "PolicyName": "S3Policy",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "s3:GetObject"
+                                    ],
+                                    "Resource": {
+                                        "Fn::Join": [
+                                            "",
+                                            [
+                                                "arn:aws:s3:::",
+                                                {
+                                                    "Ref": "QSS3BucketName"
+                                                },
+                                                "/*"
+                                            ]
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "s3:ListBucket",
+                                        "s3:GetBucketLocation"
+                                    ],
+                                    "Resource": {
+                                        "Fn::Join": [
+                                            "",
+                                            [
+                                                "arn:aws:s3:::",
+                                                {
+                                                    "Ref": "QSS3BucketName"
+                                                }
+                                            ]
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "s3:ListBucket",
+                                        "s3:GetBucketLocation",
+                                        "s3:GetObject"
+                                    ],
+                                    "Resource": [
+                                        {
+                                            "Fn::Join": [
+                                                "",
+                                                [
+                                                    "arn:aws:s3:::",
+                                                    {
+                                                        "Ref": "DatasetS3BucketName"
+                                                    },
+                                                    "/*"
+                                                ]
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "Parameters": {
+        "QSS3BucketName": {
+            "Type": "String",
+            "Description": "S3 bucket name for the Quick Start assets. Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-)."
+        },
+        "DatasetS3BucketName": {
+            "Type": "String",
+            "Description": "Dataset bucket name for the Quick Start dataset. Dataset bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-)."
+        },
+        "QuboleExternalId": {
+            "Type": "String",
+            "Description": "Qubole account External ID. Navigate to Control Panel in UI at https://api.qubole.com/v2/control-panel and click the Account Settings tab on the left pane. Select IAM Role radio button under Access Mode (Keys/IAM Roles) section and copy External ID that is displayed."
+        },
+        "QuboleAWSAccountId": {
+            "Type": "String",
+            "Description": "Qubole AWS account ID. Navigate to Control Panel in UI at https://api.qubole.com/v2/control-panel and click the Account Settings tab on the left pane. Select IAM Role radio button under Access Mode (Keys/IAM Roles) section and copy Trusted Principal AWS Account ID that is displayed."
+        },
+        "QuboleBucketName": {
+            "Type": "String",
+            "Description": "S3 bucket name for the Qubole data. Qubole bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-)."
+        }
+    },
+    "Outputs": {
+        "InstanceProfileName": {
+            "Description": "Name of InstanceProfile",
+            "Value": {
+                "Ref": "InstanceProfile"
+            }
+        },
+        "QuboleRoleARN": {
+            "Description": "Qubole role ARN",
+            "Value": {
+                "Fn::GetAtt": [
+                    "QuboleRole",
+                    "Arn"
+                ]
+            }
+        },
+        "QuboleBastionInstanceProfileName": {
+            "Description": "Name of Qubole InstanceProfile",
+            "Value": {
+                "Ref": "QuboleBastionInstanceProfile"
+            }
+        }
+    }
+}

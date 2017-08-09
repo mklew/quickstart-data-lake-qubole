@@ -1,0 +1,146 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Qubole bastion",
+    "Mappings": {
+        "QuboleRegionToAMI": {
+            "us-east-1": {
+                "ImageId": "ami-fdd62b90"
+            },
+            "us-west-1": {
+                "ImageId": "ami-d4c3b8b4"
+            },
+            "us-west-2": {
+                "ImageId": "ami-f4a65e94"
+            },
+            "eu-west-1": {
+                "ImageId": "ami-15b72466"
+            },
+            "sa-east1": {
+                "ImageId": "ami-6f47cc03"
+            },
+            "ap-southeast-1": {
+                "ImageId": "ami-489e4e2b"
+            },
+            "ap-northeast-1": {
+                "ImageId": "ami-fdd62b90"
+            }
+        }
+    },
+    "Parameters": {
+        "KeyPairName": {
+            "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instance.",
+            "Type": "AWS::EC2::KeyPair::KeyName"
+        },
+        "PublicSubnet1ID": {
+            "Description": "ID of the public subnet 1 that you want to provision the bastion into (e.g., subnet-a0246dcd).",
+            "Type": "AWS::EC2::Subnet::Id"
+        },
+        "PublicSubnet2ID": {
+            "Description": "ID of the public subnet 2 you want to provision the bastion into (e.g., subnet-e3246d8e).",
+            "Type": "AWS::EC2::Subnet::Id"
+        },
+        "VPCID": {
+            "Description": "ID of your existing VPC (e.g., vpc-0343606e).",
+            "Type": "AWS::EC2::VPC::Id"
+        },
+        "VPCCIDR": {
+            "Description": "CIDR block for your existing VPC.",
+            "Type": "String"
+        },
+        "InstanceType": {
+            "Description": "The EC2 instance type for the bastion host instances.",
+            "Type": "String",
+            "Default": "t2.micro",
+            "AllowedValues": [
+                "t2.nano",
+                "t2.micro",
+                "t2.small",
+                "t2.medium",
+                "t2.large",
+                "m3.large",
+                "m3.xlarge",
+                "m3.2xlarge"
+            ],
+            "ConstraintDescription": "must be a valid EC2 instance type."
+        },
+        "InstanceProfileName": {
+            "Type": "String",
+            "Description": "Instance profile name"
+        },
+        "NumBastionInstances": {
+            "AllowedValues": [
+                "1"
+            ],
+            "Default": "1",
+            "Description": "The number of bastion hosts to create.",
+            "Type": "String"
+        }
+    },
+    "Resources": {
+        "BastionInstance": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "ImageId": { "Fn::FindInMap" : [ "QuboleRegionToAMI", { "Ref" : "AWS::Region" }, "ImageId"]},
+                "NetworkInterfaces": [
+                    {
+                        "AssociatePublicIpAddress": "true",
+                        "DeviceIndex": "0",
+                        "GroupSet": [
+                            {
+                                "Ref": "BastionSecurityGroup"
+                            }
+                        ],
+                        "SubnetId": {
+                            "Ref": "PublicSubnet1ID"
+                        }
+                    }
+                ],
+                "InstanceType": {
+                    "Ref": "InstanceType"
+                },
+                "KeyName": {
+                    "Ref": "KeyPairName"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "QuboleBastion"
+                    }
+                ]
+            }
+        },
+        "BastionSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Enables SSH Access to Bastion Hosts",
+                "VpcId": {
+                    "Ref": "VPCID"
+                },
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "22",
+                        "ToPort": "22",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "7000",
+                        "ToPort": "7000",
+                        "CidrIp": {"Ref": "VPCCIDR"}
+                    }
+                ]
+            }
+        }
+    },
+    "Outputs": {
+        "BastionPublicDnsName": {
+            "Description": "Bastion public DNS",
+            "Value": { "Fn::GetAtt" : [ "BastionInstance", "PublicDnsName" ] }
+        },
+        "BastionSecurityGroupID": {
+            "Description": "Bastion security group Id",
+            "Value": { "Fn::GetAtt" : [ "BastionSecurityGroup", "GroupId" ] }
+        }
+    }
+}

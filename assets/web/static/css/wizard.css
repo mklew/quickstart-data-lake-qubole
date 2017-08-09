@@ -1,0 +1,43 @@
+* {
+    border-radius: 0 !important;
+}
+
+.navigationStep {
+    font: normal normal normal normal 14px / 20px Roboto, Arial, Tahoma, sans-serif;
+    transition: all 0.5s ease 0s;
+    cursor: default;
+
+    box-sizing: border-box;
+    color: rgb(170, 170, 170);
+    display: block;
+    text-align: left;
+    text-decoration: none;
+    column-rule-color: rgb(170, 170, 170);
+    perspective-origin: 314.75px 28px;
+    transform-origin: 314.75px 28px;
+    background: rgb(238, 238, 238) none repeat scroll 0% 0% / auto padding-box border-box;
+    border: 0px none rgb(170, 170, 170);
+    list-style: none outside none;
+    margin: 0px 3px 3px;
+    outline: rgb(170, 170, 170) none 0px;
+    padding: 14px;
+}
+.navigationStepNumber {
+    font: normal normal normal normal 20.006px / 28.58px Roboto, Arial, Tahoma, sans-serif;
+    font-size: 1.429em;
+}
+
+#qubole-logo {
+    padding: 10px;
+    padding-left: 17px;
+    padding-right: 10px;
+}
+
+.clickable-panel{
+    cursor: pointer;
+}
+
+.panel-heading span {
+    margin-top: -20px;
+    font-size: 15px;
+}
