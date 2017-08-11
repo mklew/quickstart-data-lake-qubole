@@ -77,6 +77,14 @@ function registerEvents() {
             $('#dataStoreAlert').show();
         });
     });
+    $('#scalingButton').on('click', function() {
+        $.post('/run_scaling', function () {
+            var btn = $('#scalingButton');
+            btn.text('Queries submitted!');
+            btn.removeClass('btn-primary').addClass('btn-success');
+        }).fail(function() {
+        });
+    });
     $('#createClusters').on('click', function() {
         var btn = $(this);
         btn.removeClass('btn-primary btn-danger').addClass('btn-primary');

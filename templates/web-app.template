@@ -109,6 +109,10 @@
             "Type": "String",
             "Description": "Qubole account API token."
         },
+        "QuboleLoggingBucketName": {
+            "Type": "String",
+            "Description": "Qubole logging bucket name."
+        },
         "HadoopMasterInstanceType": {
             "Description": "The EC2 instance type for Hadoop master node.",
             "Type": "String",
@@ -293,6 +297,12 @@
                                 "owner": "ec2-user",
                                 "group": "ec2-user"
                             },
+                            "/etc/node_bootstrap.sh": {
+                                "content" : "pip install 'plotly<=2.0",
+                                "mode": "000770",
+                                "owner": "ec2-user",
+                                "group": "ec2-user"
+                            },
                             "/etc/bootstrap.sh": {
                                 "content": {
                                     "Fn::Join": [
@@ -328,6 +338,11 @@
                                 "command": {
                                     "Fn::Sub": "mysql -u${RDSUsername} -p${RDSPassword} -h ${RDSHostname} -P ${RDSPort} -D ${RDSDatabaseName} < /home/ec2-user/qusql_2017-07-20.sql"
                                  }
+                            },
+                            "3_copy_bootstrap_script": {
+                                "command": {
+                                    "Fn::Sub": "/usr/local/bin/aws s3 cp /etc/node_bootstrap.sh s3://${QuboleLoggingBucketName}/scripts/hadoop/node_bootstrap.sh"
+                                }
                             },
                             "4_run_webserver": {
                                 "command": "runuser -l ec2-user -c \"python3.4 /home/ec2-user/assets/web/app.py --config /etc/production.ini > server.log 2>&1 &\""

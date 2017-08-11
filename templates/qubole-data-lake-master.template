@@ -406,7 +406,7 @@
         "HadoopMaxNodesCount": {
             "Description": "The maximum number of Hadoop nodes.",
             "Type": "Number",
-            "Default": "2"
+            "Default": "3"
         },
         "SparkMasterInstanceType": {
             "Description": "The EC2 instance type for Spark master node.",

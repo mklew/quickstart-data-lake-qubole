@@ -60,7 +60,7 @@ def _create_hadoop_cluster_info(config):
     cluster_info.set_node_configuration(
         master_instance_type=config['hadoop_master_instance_type'],
         slave_instance_type=config['hadoop_slave_instance_type'],
-        initial_nodes=config['hadoop_max_nodes_count'],
+        initial_nodes=1,
         max_nodes=config['hadoop_max_nodes_count'],
         slave_request_type='spot',  # 'ondemand', 'spot', 'spot block'
         fallback_to_ondemand=None
@@ -78,7 +78,7 @@ def _create_spark_cluster_info(config):
     cluster_info.set_node_configuration(
         master_instance_type=config['spark_master_instance_type'],
         slave_instance_type=config['spark_slave_instance_type'],
-        initial_nodes=config['spark_max_nodes_count'],
+        initial_nodes=1,
         max_nodes=config['spark_max_nodes_count'],
         slave_request_type='spot',  # 'ondemand', 'spot', 'spot block'
         fallback_to_ondemand=None

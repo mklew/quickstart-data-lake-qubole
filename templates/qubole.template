@@ -575,6 +575,12 @@
                     "QuboleApiToken": {
                         "Ref": "QuboleApiToken"
                     },
+                    "QuboleLoggingBucketName": {
+                        "Fn::GetAtt": [
+                            "QuboleBucketStack",
+                            "Outputs.QuboleLoggingBucketName"
+                        ]
+                    },
                     "HadoopMasterInstanceType": {
                         "Ref": "HadoopMasterInstanceType"
                     },

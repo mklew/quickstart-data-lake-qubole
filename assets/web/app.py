@@ -157,6 +157,18 @@ def run_query():
     return Response()
 
 
+@app.route('/run_scaling', methods=['POST'])
+@login_required
+def run_scaling():
+    for _ in range(10):
+        run_hive_query_asynchronous(
+            cluster_label=config['hadoop_cluster_name'],
+            query_filename='top_10_revenue_generating_products.sql',
+            qubole_database_name=config['qubole_database_name']
+        )
+    return Response()
+
+
 def parse_command_line_args():
     parser = argparse.ArgumentParser(description='Quick start App')
     parser.add_argument('--config', required=True, help='Configuration')
