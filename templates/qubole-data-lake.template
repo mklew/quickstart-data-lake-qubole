@@ -195,19 +195,19 @@
                     "default": "Qubole AWS account ID"
                 },
                 "HadoopMasterInstanceType": {
-                    "default": "Hadoop master instance"
+                    "default": "Hadoop master instance type"
                 },
                 "HadoopSlaveInstanceType": {
-                    "default": "Hadoop slave instance"
+                    "default": "Hadoop slave instance type"
                 },
                 "HadoopMaxNodesCount": {
                     "default": "Hadoop max nodes"
                 },
                 "SparkMasterInstanceType": {
-                    "default": "Spark master instance"
+                    "default": "Spark master instance type"
                 },
                 "SparkSlaveInstanceType": {
-                    "default": "Spark slave instance"
+                    "default": "Spark slave instance type"
                 },
                 "SparkMaxNodesCount": {
                     "default": "Spark max nodes"
@@ -397,30 +397,33 @@
             "AllowedPattern": "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$",
             "ConstraintDescription": "Dataset bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
             "Default": "aws-hosted-bucket-qubole-data",
-            "Description": "Dataset bucket name for the Quick Start dataset. Dataset bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
+            "Description": "Dataset bucket name for the Quick Start dataset. Dataset bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-). Required only if Create Demonstration is set to \"yes\"",
             "Type": "String"
         },
         "DatasetS3KeyPrefix": {
             "AllowedPattern": "^[0-9a-zA-Z-]+(/[0-9a-zA-Z-]+)*$",
             "ConstraintDescription": "Dataset key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/). It cannot start or end with forward slash (/) because they are automatically appended.",
             "Default": "qubole-data/v1",
-            "Description": "S3 key prefix for the Quick Start dataset. Dataset key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/). It cannot start or end with forward slash (/) because they are automatically appended.",
+            "Description": "S3 key prefix for the Quick Start dataset. Dataset key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/). It cannot start or end with forward slash (/) because they are automatically appended. Required only if Create Demonstration is set to \"yes\"",
             "Type": "String"
         },
         "QuboleApiToken": {
             "Type": "String",
             "MinLength": "8",
-            "Description": "Qubole account API token."
+            "Description": "Qubole account API token.",
+            "NoEcho": "true"
         },
         "QuboleExternalId": {
             "Type": "String",
             "MinLength": "8",
-            "Description": "Qubole account External ID. Navigate to Control Panel in UI at https://api.qubole.com/v2/control-panel and click the Account Settings tab on the left pane. Select IAM Role radio button under Access Mode (Keys/IAM Roles) section and copy External ID that is displayed."
+            "Description": "Qubole account External ID. Navigate to Control Panel in UI at https://api.qubole.com/v2/control-panel and click the Account Settings tab on the left pane. Select IAM Role radio button under Access Mode (Keys/IAM Roles) section and copy External ID that is displayed.",
+            "NoEcho": "true"
         },
         "QuboleAWSAccountId": {
             "Type": "String",
             "MinLength": "8",
-            "Description": "Qubole AWS account ID. Navigate to Control Panel in UI at https://api.qubole.com/v2/control-panel and click the Account Settings tab on the left pane. Select IAM Role radio button under Access Mode (Keys/IAM Roles) section and copy Trusted Principal AWS Account ID that is displayed."
+            "Description": "Qubole AWS account ID. Navigate to Control Panel in UI at https://api.qubole.com/v2/control-panel and click the Account Settings tab on the left pane. Select IAM Role radio button under Access Mode (Keys/IAM Roles) section and copy Trusted Principal AWS Account ID that is displayed.",
+            "NoEcho": "true"
         },
         "HadoopMasterInstanceType": {
             "Description": "The EC2 instance type for Hadoop master node.",

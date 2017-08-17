@@ -311,15 +311,17 @@
         },
         "DatasetS3BucketName": {
             "Type": "String",
-            "Description": "Dataset bucket name for the Quick Start dataset. Dataset bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-)."
+            "Description": "Dataset bucket name for the Quick Start dataset. Dataset bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-). Required only if Create Demonstration is set to \"yes\""
         },
         "QuboleExternalId": {
             "Type": "String",
-            "Description": "Qubole account External ID. Navigate to Control Panel in UI at https://api.qubole.com/v2/control-panel and click the Account Settings tab on the left pane. Select IAM Role radio button under Access Mode (Keys/IAM Roles) section and copy External ID that is displayed."
+            "Description": "Qubole account External ID. Navigate to Control Panel in UI at https://api.qubole.com/v2/control-panel and click the Account Settings tab on the left pane. Select IAM Role radio button under Access Mode (Keys/IAM Roles) section and copy External ID that is displayed.",
+            "NoEcho": "true"
         },
         "QuboleAWSAccountId": {
             "Type": "String",
-            "Description": "Qubole AWS account ID. Navigate to Control Panel in UI at https://api.qubole.com/v2/control-panel and click the Account Settings tab on the left pane. Select IAM Role radio button under Access Mode (Keys/IAM Roles) section and copy Trusted Principal AWS Account ID that is displayed."
+            "Description": "Qubole AWS account ID. Navigate to Control Panel in UI at https://api.qubole.com/v2/control-panel and click the Account Settings tab on the left pane. Select IAM Role radio button under Access Mode (Keys/IAM Roles) section and copy Trusted Principal AWS Account ID that is displayed.",
+            "NoEcho": "true"
         },
         "QuboleBucketName": {
             "Type": "String",
