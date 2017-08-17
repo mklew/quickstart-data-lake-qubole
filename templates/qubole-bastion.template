@@ -2,27 +2,33 @@
     "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "Qubole bastion",
     "Mappings": {
-        "QuboleRegionToAMI": {
+        "AWSAMIRegionMap": {
             "us-east-1": {
-                "ImageId": "ami-fdd62b90"
+                "AMZNLINUXHVM": "ami-fdd62b90",
+                "AMI": "ami-67311b0d"
             },
             "us-west-1": {
-                "ImageId": "ami-d4c3b8b4"
+                "AMZNLINUXHVM": "ami-d4c3b8b4",
+                "AMI": "ami-f68ff996"
             },
             "us-west-2": {
-                "ImageId": "ami-f4a65e94"
+                "AMZNLINUXHVM": "ami-f4a65e94",
+                "AMI": "ami-2559b845"
             },
             "eu-west-1": {
-                "ImageId": "ami-15b72466"
+                "AMZNLINUXHVM": "ami-15b72466",
+                "AMI": "ami-9a53e3e9"
             },
             "sa-east1": {
-                "ImageId": "ami-6f47cc03"
+                "AMZNLINUXHVM": "ami-6f47cc03"
             },
             "ap-southeast-1": {
-                "ImageId": "ami-489e4e2b"
+                "AMZNLINUXHVM": "ami-489e4e2b",
+                "AMI": "ami-030ec060"
             },
             "ap-northeast-1": {
-                "ImageId": "ami-fdd62b90"
+                "AMZNLINUXHVM": "ami-0a4ba76b",
+                "AMI": "ami-9defebf3"
             }
         }
     },
@@ -68,45 +74,119 @@
             "Description": "Instance profile name"
         },
         "NumBastionInstances": {
-            "AllowedValues": [
-                "1"
-            ],
             "Default": "1",
             "Description": "The number of bastion hosts to create.",
+            "Type": "String"
+        },
+        "QuboleBastionIngressAccessCIDR": {
+            "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
+            "ConstraintDescription": "CIDR block parameter must be in the form x.x.x.x/x",
+            "Description": "CIDR block allowed to access Qubole bastion instance. You should follow instructions from http://docs.qubole.com/en/latest/user-guide/clusters/clusters-in-vpcs.html#creating-a-security-group-in-the-vpc to obtain Qubole tunnel server's IP address. Alternatively, set it to 0.0.0.0/0 to let anyone access Qubole Bastion. CIDR block parameter must be in the form x.x.x.x/x (e.g., 96.127.8.12/32).",
             "Type": "String"
         }
     },
     "Resources": {
-        "BastionInstance": {
-            "Type": "AWS::EC2::Instance",
+        "EIP": {
+            "Type": "AWS::EC2::EIP",
             "Properties": {
-                "ImageId": { "Fn::FindInMap" : [ "QuboleRegionToAMI", { "Ref" : "AWS::Region" }, "ImageId"]},
-                "NetworkInterfaces": [
+                "Domain": "vpc"
+            }
+        },
+        "BastionAutoScalingGroup": {
+            "Type": "AWS::AutoScaling::AutoScalingGroup",
+            "Properties": {
+                "LaunchConfigurationName": {
+                    "Ref": "BastionLaunchConfiguration"
+                },
+                "VPCZoneIdentifier": [
                     {
-                        "AssociatePublicIpAddress": "true",
-                        "DeviceIndex": "0",
-                        "GroupSet": [
-                            {
-                                "Ref": "BastionSecurityGroup"
-                            }
-                        ],
-                        "SubnetId": {
-                            "Ref": "PublicSubnet1ID"
-                        }
+                        "Ref": "PublicSubnet1ID"
+                    },
+                    {
+                        "Ref": "PublicSubnet2ID"
                     }
                 ],
-                "InstanceType": {
-                    "Ref": "InstanceType"
+                "MinSize": {
+                    "Ref": "NumBastionInstances"
                 },
+                "MaxSize": {
+                    "Ref": "NumBastionInstances"
+                },
+                "Cooldown": "300",
+                "DesiredCapacity": {
+                    "Ref": "NumBastionInstances"
+                },
+                "Tags": [{
+                     "Key": "Name",
+                     "Value": "QuboleBastion",
+                     "PropagateAtLaunch": "true"
+                }]
+            },
+            "CreationPolicy": {
+                "ResourceSignal": {
+                    "Count": {
+                        "Ref": "NumBastionInstances"
+                    },
+                    "Timeout": "PT15M"
+                }
+            }
+        },
+        "BastionLaunchConfiguration": {
+            "Type": "AWS::AutoScaling::LaunchConfiguration",
+            "Metadata": {
+                "Comment": "Install Flask application",
+                "AWS::CloudFormation::Init": {
+                    "config": {
+                    }
+                }
+            },
+            "Properties": {
                 "KeyName": {
                     "Ref": "KeyPairName"
                 },
-                "Tags": [
+                "ImageId": {
+                    "Fn::FindInMap": [
+                        "AWSAMIRegionMap",
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "AMZNLINUXHVM"
+                    ]
+                },
+                "SecurityGroups": [
                     {
-                        "Key": "Name",
-                        "Value": "QuboleBastion"
+                        "Ref": "BastionSecurityGroup"
                     }
-                ]
+                ],
+                "IamInstanceProfile": {
+                    "Ref": "InstanceProfileName"
+                },
+                "InstanceType": {
+                    "Ref": "InstanceType"
+                },
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "\n",
+                            [
+                                "#!/bin/bash -xe",
+                                "yum update -y",
+                                "yum install -y aws-cfn-bootstrap",
+                                "# associate Elastic IP",
+                                "INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)",
+                                {
+                                    "Fn::Sub": ["ALLOCATION_ID=${AllocationID}", {"AllocationID": { "Fn::GetAtt" : ["EIP", "AllocationId"] }}]
+                                },
+                                {
+                                    "Fn::Sub": "aws ec2 associate-address --instance-id $INSTANCE_ID --allocation-id $ALLOCATION_ID --region ${AWS::Region} --allow-reassociation"
+                                },
+                                {
+                                    "Fn::Sub": "/opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource BastionAutoScalingGroup --region ${AWS::Region}"
+                                }
+                            ]
+                        ]
+                    }
+                }
             }
         },
         "BastionSecurityGroup": {
@@ -121,13 +201,19 @@
                         "IpProtocol": "tcp",
                         "FromPort": "22",
                         "ToPort": "22",
-                        "CidrIp": "0.0.0.0/0"
+                        "CidrIp": { "Ref": "QuboleBastionIngressAccessCIDR" }
                     },
                     {
                         "IpProtocol": "tcp",
                         "FromPort": "7000",
                         "ToPort": "7000",
                         "CidrIp": {"Ref": "VPCCIDR"}
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "7000",
+                        "ToPort": "7000",
+                        "CidrIp": { "Ref": "QuboleBastionIngressAccessCIDR" }
                     }
                 ]
             }
@@ -136,11 +222,9 @@
     "Outputs": {
         "BastionPublicDnsName": {
             "Description": "Bastion public DNS",
-            "Value": { "Fn::GetAtt" : [ "BastionInstance", "PublicDnsName" ] }
-        },
-        "BastionSecurityGroupID": {
-            "Description": "Bastion security group Id",
-            "Value": { "Fn::GetAtt" : [ "BastionSecurityGroup", "GroupId" ] }
+            "Value": {
+                "Ref": "EIP"
+            }
         }
     }
 }

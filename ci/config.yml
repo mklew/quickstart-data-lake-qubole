@@ -1,20 +1,19 @@
 global:
   marketplace-ami: false
-  owner: quickstart-eng@amazon.com
+  owner: quickstart@amazon.com
   qsname: quickstart-data-lake-qubole
   regions:
-    - ap-northeast-1
-    - ap-northeast-2
-    - ap-south-1
-    - ap-southeast-1
-    - ap-southeast-2
-    - ca-central-1
-    - eu-central-1
-    - eu-west-1
-    - sa-east-1
     - us-east-1
-    - us-east-2
-    - us-west-1
     - us-west-2
   reporting: true
- 
+tests:
+  with-demonstration:
+    parameter_input: qubole-with-demonstration.json
+    template_file: qubole-data-lake-master.template
+    regions:
+      - us-east-1
+  without-demonstration:
+    parameter_input: qubole-without-demonstration.json
+    template_file: qubole-data-lake-master.template
+    regions:
+      - us-west-2

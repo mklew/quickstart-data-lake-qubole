@@ -1,0 +1,46 @@
+[
+  {
+      "ParameterKey": "QSS3BucketName",
+      "ParameterValue": "$[taskcat_autobucket]"
+  },
+  {
+      "ParameterKey": "QSS3KeyPrefix",
+      "ParameterValue": "quickstart-data-lake-qubole"
+  },
+  {
+      "ParameterKey": "AvailabilityZones",
+      "ParameterValue": "$[taskcat_genaz_2]"
+  },
+  {
+      "ParameterKey": "KeyPairName",
+      "ParameterValue": "datalake-quickstart"
+  },
+  {
+      "ParameterKey": "EnableRedshift",
+      "ParameterValue": "no"
+  },
+  {
+      "ParameterKey": "RemoteAccessCIDR",
+      "ParameterValue": "89.65.65.154/32"
+  },
+  {
+      "ParameterKey": "QuboleApiToken",
+      "ParameterValue": "$[taskcat_random-string]"
+  },
+  {
+      "ParameterKey": "QuboleExternalId",
+      "ParameterValue": "$[taskcat_random-string]"
+  },
+  {
+      "ParameterKey": "QuboleAWSAccountId",
+      "ParameterValue": "417857747389"
+  },
+  {
+      "ParameterKey": "CreateDemonstration",
+      "ParameterValue": "no"
+  },
+  {
+      "ParameterKey": "QuboleBastionIngressAccessCIDR",
+      "ParameterValue": "0.0.0.0/0"
+  }
+]

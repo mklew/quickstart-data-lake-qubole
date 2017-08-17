@@ -186,6 +186,7 @@
         },
         "InstanceProfile": {
             "Type": "AWS::IAM::InstanceProfile",
+            "Condition": "CreateDemoResources",
             "Properties": {
                 "Roles": [
                     {
@@ -196,6 +197,7 @@
         },
         "InstanceRole": {
             "Type": "AWS::IAM::Role",
+            "Condition": "CreateDemoResources",
             "Properties": {
                 "AssumeRolePolicyDocument": {
                     "Version": "2012-10-17",
@@ -276,26 +278,6 @@
                                             ]
                                         }
                                     ]
-                                },
-                                {
-                                    "Effect": "Allow",
-                                    "Action": [
-                                        "s3:PutObject"
-                                    ],
-                                    "Resource": [
-                                        {
-                                            "Fn::Join": [
-                                                "",
-                                                [
-                                                    "arn:aws:s3:::",
-                                                    {
-                                                        "Ref": "QuboleBucketName"
-                                                    },
-                                                    "*"
-                                                ]
-                                            ]
-                                        }
-                                    ]
                                 }
                             ]
                         }
@@ -304,7 +286,25 @@
             }
         }
     },
+    "Conditions": {
+        "CreateDemoResources": {
+            "Fn::Equals": [
+                {
+                    "Ref": "CreateDemonstration"
+                },
+                "yes"
+            ]
+        }
+    },
     "Parameters": {
+        "CreateDemonstration": {
+            "Description": "Create EC2 instance with Qubole walk-through guide and load sample data into RDS",
+            "Type": "String",
+            "AllowedValues": [
+                "yes",
+                "no"
+            ]
+        },
         "QSS3BucketName": {
             "Type": "String",
             "Description": "S3 bucket name for the Quick Start assets. Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-)."
@@ -331,6 +331,7 @@
     "Outputs": {
         "InstanceProfileName": {
             "Description": "Name of InstanceProfile",
+            "Condition": "CreateDemoResources",
             "Value": {
                 "Ref": "InstanceProfile"
             }
