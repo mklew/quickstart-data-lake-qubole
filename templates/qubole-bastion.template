@@ -134,7 +134,6 @@
         "BastionLaunchConfiguration": {
             "Type": "AWS::AutoScaling::LaunchConfiguration",
             "Metadata": {
-                "Comment": "Install Flask application",
                 "AWS::CloudFormation::Init": {
                     "config": {
                     }
