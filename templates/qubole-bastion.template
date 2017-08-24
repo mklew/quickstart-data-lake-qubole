@@ -4,31 +4,25 @@
     "Mappings": {
         "AWSAMIRegionMap": {
             "us-east-1": {
-                "AMZNLINUXHVM": "ami-fdd62b90",
-                "AMI": "ami-67311b0d"
+                "AMZNLINUXHVM": "ami-fdd62b90"
             },
             "us-west-1": {
-                "AMZNLINUXHVM": "ami-d4c3b8b4",
-                "AMI": "ami-f68ff996"
+                "AMZNLINUXHVM": "ami-d4c3b8b4"
             },
             "us-west-2": {
-                "AMZNLINUXHVM": "ami-f4a65e94",
-                "AMI": "ami-2559b845"
+                "AMZNLINUXHVM": "ami-f4a65e94"
             },
             "eu-west-1": {
-                "AMZNLINUXHVM": "ami-15b72466",
-                "AMI": "ami-9a53e3e9"
+                "AMZNLINUXHVM": "ami-15b72466"
             },
             "sa-east1": {
                 "AMZNLINUXHVM": "ami-6f47cc03"
             },
             "ap-southeast-1": {
-                "AMZNLINUXHVM": "ami-489e4e2b",
-                "AMI": "ami-030ec060"
+                "AMZNLINUXHVM": "ami-489e4e2b"
             },
             "ap-northeast-1": {
-                "AMZNLINUXHVM": "ami-0a4ba76b",
-                "AMI": "ami-9defebf3"
+                "AMZNLINUXHVM": "ami-0a4ba76b"
             }
         }
     },
