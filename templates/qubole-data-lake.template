@@ -363,7 +363,6 @@
             "ConstraintDescription": "Password must contain 8 to 64 ASCII characters. It must contain 1 uppercase letter, 1 lowercase letter, and 1 number.",
             "Description": "The password for Qubole Quick Start Walkthrough web application. Password must contain 8 to 64 ASCII characters. It must contain 1 uppercase letter, 1 lowercase letter, and 1 number.",
             "Type": "String",
-            "Default": "Password1",
             "NoEcho": "true"
         },
         "RDSUsername": {
@@ -382,7 +381,6 @@
             "ConstraintDescription": "Password must contain 8 to 64 printable ASCII characters excluding: /, \", \\', \\ and @. It must contain 1 uppercase letter, 1 lowercase letter, and 1 number.",
             "Description": "The password that is associated with the master user account for the RDS that is being created. Password must contain 8 to 64 printable ASCII characters excluding: /, \", \\', \\ and @. It must contain 1 uppercase letter, 1 lowercase letter, and 1 number.",
             "Type": "String",
-            "Default": "Password1",
             "NoEcho": "true"
         },
         "RDSDatabaseName": {
@@ -416,7 +414,7 @@
         "QSS3KeyPrefix": {
             "AllowedPattern": "^[0-9a-zA-Z-]+(/[0-9a-zA-Z-]+)*$",
             "ConstraintDescription": "Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/). It cannot start or end with forward slash (/) because they are automatically appended.",
-            "Default": "qubole-quickstart",
+            "Default": "qubole-quickstart/",
             "Description": "S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/). It cannot start or end with forward slash (/) because they are automatically appended.",
             "Type": "String"
         },
@@ -546,7 +544,6 @@
             "AllowedPattern": "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])[A-Za-z0-9!#$%&()*+,.:;<=>?\\[\\]^_`{|}~-]*$",
             "MinLength": "8",
             "MaxLength": "64",
-            "Default": "Password1",
             "ConstraintDescription": "Password must contain 8 to 64 printable ASCII characters excluding: /, \", \\', \\ and @. It must contain 1 uppercase letter, 1 lowercase letter, and 1 number.",
             "Description": "The password that is associated with the master user account for Redshift cluster that is being created. Password must contain 8 to 64 printable ASCII characters excluding: /, \", \\', \\ and @. It must contain 1 uppercase letter, 1 lowercase letter, and 1 number. Required only if Enable Redshift is set to \"yes\"",
             "Type": "String",
@@ -630,7 +627,7 @@
             "Type": "AWS::CloudFormation::Stack",
             "Properties": {
                 "TemplateURL": {
-                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}/submodules/quickstart-datalake-47lining/templates/data-lake.template"
+                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-datalake-47lining/templates/data-lake.template"
                 },
                 "Parameters": {
                     "AvailabilityZones": {
@@ -719,7 +716,7 @@
                     "KinesisDataStreamS3Prefix": {
                         "Ref": "KinesisDataStreamS3Prefix"
                     },
-                    "WebApplicationPassword": "Password1"
+                    "WebApplicationPassword": "ThisPasswordIsNotUsed1"
                 }
             }
         },
@@ -727,7 +724,7 @@
             "Type": "AWS::CloudFormation::Stack",
             "Properties": {
                 "TemplateURL": {
-                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}/templates/qubole.template"
+                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/qubole.template"
                 },
                 "Parameters": {
                     "CreateDemonstration": {
@@ -874,7 +871,7 @@
             }
         },
         "ElasticsearchEndpoint": {
-            "Description": "Elasticsearch endpoint",
+            "Description": "Elasticsearch Endpoint",
             "Value": {
                 "Fn::GetAtt": [
                     "DataLakeStack",

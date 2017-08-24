@@ -311,7 +311,6 @@
             "ConstraintDescription": "Password must contain 8 to 64 ASCII characters. It must contain 1 uppercase letter, 1 lowercase letter, and 1 number.",
             "Description": "The password for Qubole Quick Start Walkthrough web application. Password must contain 8 to 64 ASCII characters. It must contain 1 uppercase letter, 1 lowercase letter, and 1 number.",
             "Type": "String",
-            "Default": "Password1",
             "NoEcho": "true"
         },
         "RDSUsername": {
@@ -330,7 +329,6 @@
             "ConstraintDescription": "Password must contain 8 to 64 printable ASCII characters excluding: /, \", \\', \\ and @. It must contain 1 uppercase letter, 1 lowercase letter, and 1 number.",
             "Description": "The password that is associated with the master user account for the RDS that is being created. Password must contain 8 to 64 printable ASCII characters excluding: /, \", \\', \\ and @. It must contain 1 uppercase letter, 1 lowercase letter, and 1 number.",
             "Type": "String",
-            "Default": "Password1",
             "NoEcho": "true"
         },
         "RDSDatabaseName": {
@@ -364,7 +362,7 @@
         "QSS3KeyPrefix": {
             "AllowedPattern": "^[0-9a-zA-Z-]+(/[0-9a-zA-Z-]+)*$",
             "ConstraintDescription": "Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/). It cannot start or end with forward slash (/) because they are automatically appended.",
-            "Default": "qubole-quickstart",
+            "Default": "qubole-quickstart/",
             "Description": "S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/). It cannot start or end with forward slash (/) because they are automatically appended.",
             "Type": "String"
         },
@@ -499,7 +497,6 @@
             "AllowedPattern": "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])[A-Za-z0-9!#$%&()*+,.:;<=>?\\[\\]^_`{|}~-]*$",
             "MinLength": "8",
             "MaxLength": "64",
-            "Default": "Password1",
             "ConstraintDescription": "Password must contain 8 to 64 printable ASCII characters excluding: /, \", \\', \\ and @. It must contain 1 uppercase letter, 1 lowercase letter, and 1 number.",
             "Description": "The password that is associated with the master user account for Redshift cluster that is being created. Password must contain 8 to 64 printable ASCII characters excluding: /, \", \\', \\ and @. It must contain 1 uppercase letter, 1 lowercase letter, and 1 number. Required only if Enable Redshift is set to \"yes\"",
             "Type": "String",
@@ -568,13 +565,13 @@
         },
         "KinesisDataStreamName": {
             "Description": "Kinesis data stream name.",
-            "Default": "MyKinesisDataStream",
+            "Default": "streaming-submissions",
             "Type": "String"
         },
         "KinesisDataStreamS3Prefix": {
             "AllowedPattern": "^[0-9a-zA-Z-]+(/[0-9a-zA-Z-]+)*$",
             "Description": "Kinesis data stream S3 prefix for your streaming data stored in Datalake submissions bucket.",
-            "Default": "mydata",
+            "Default": "streaming-submissions",
             "Type": "String"
         }
     },
@@ -583,7 +580,7 @@
             "Type": "AWS::CloudFormation::Stack",
             "Properties": {
                 "TemplateURL": {
-                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}/submodules/quickstart-aws-vpc/templates/aws-vpc.template"
+                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template"
                 },
                 "Parameters": {
                     "AvailabilityZones": {
@@ -658,7 +655,7 @@
             "Type": "AWS::CloudFormation::Stack",
             "Properties": {
                 "TemplateURL": {
-                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}/submodules/quickstart-linux-bastion/templates/linux-bastion.template"
+                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-linux-bastion/templates/linux-bastion.template"
                 },
                 "Parameters": {
                     "KeyPairName": {
@@ -706,7 +703,7 @@
             "Type": "AWS::CloudFormation::Stack",
             "Properties": {
                 "TemplateURL": {
-                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}/templates/qubole-data-lake.template"
+                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/qubole-data-lake.template"
                 },
                 "Parameters": {
                     "CreateDemonstration": {
