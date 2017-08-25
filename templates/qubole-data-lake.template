@@ -12,7 +12,8 @@
                         "QuboleApiToken",
                         "QuboleAWSAccountId",
                         "QuboleExternalId",
-                        "QuboleBastionIngressAccessCIDR"
+                        "QuboleBastionIngressAccessCIDR",
+                        "QuboleBastionInstanceType"
                     ]
                 },
                 {
@@ -202,6 +203,9 @@
                 "QuboleBastionIngressAccessCIDR": {
                     "default": "Qubole bastion ingress access CIDR"
                 },
+                "QuboleBastionInstanceType": {
+                    "default": "Qubole bastion instance type"
+                },
                 "HadoopMasterInstanceType": {
                     "default": "Hadoop master instance type"
                 },
@@ -343,7 +347,8 @@
                 "t2.large",
                 "m3.large",
                 "m3.xlarge",
-                "m3.2xlarge"
+                "m3.2xlarge",
+                "m4.large"
             ],
             "ConstraintDescription": "must be a valid EC2 instance type."
         },
@@ -412,8 +417,8 @@
             "Type": "String"
         },
         "QSS3KeyPrefix": {
-            "AllowedPattern": "^[0-9a-zA-Z-]+(/[0-9a-zA-Z-]+)*$",
-            "ConstraintDescription": "Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/). It cannot start or end with forward slash (/) because they are automatically appended.",
+            "AllowedPattern": "^[0-9a-zA-Z-/]*$",
+            "ConstraintDescription": "Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/). It cannot start with forward slash (/) because it is automatically appended.",
             "Default": "qubole-quickstart/",
             "Description": "S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/). It cannot start or end with forward slash (/) because they are automatically appended.",
             "Type": "String"
@@ -456,6 +461,27 @@
             "Description": "CIDR block allowed to access Qubole bastion instance. You should follow instructions from http://docs.qubole.com/en/latest/user-guide/clusters/clusters-in-vpcs.html#creating-a-security-group-in-the-vpc to obtain Qubole tunnel server's IP address. Alternatively, set it to 0.0.0.0/0 to let anyone access Qubole Bastion. CIDR block parameter must be in the form x.x.x.x/x (e.g., 96.127.8.12/32).",
             "Type": "String"
         },
+        "QuboleBastionInstanceType": {
+            "Type": "String",
+            "Description": "The EC2 instance type for the Qubole Bastion server",
+            "Default": "m3.xlarge",
+            "AllowedValues": [
+                "t2.nano",
+                "t2.micro",
+                "t2.small",
+                "t2.medium",
+                "t2.large",
+                "m3.large",
+                "m3.xlarge",
+                "m3.2xlarge",
+                "m4.large",
+                "m4.xlarge",
+                "m4.2xlarge",
+                "m4.4xlarge",
+                "m4.10xlarge",
+                "m4.16xlarge"
+            ]
+        },
         "HadoopMasterInstanceType": {
             "Description": "The EC2 instance type for Hadoop master node.",
             "Type": "String",
@@ -467,7 +493,13 @@
                 "m2.2xlarge",
                 "m2.4xlarge",
                 "m3.xlarge",
-                "m3.2xlarge"
+                "m3.2xlarge",
+                "m4.large",
+                "m4.xlarge",
+                "m4.2xlarge",
+                "m4.4xlarge",
+                "m4.10xlarge",
+                "m4.16xlarge"
             ]
         },
         "HadoopSlaveInstanceType": {
@@ -481,7 +513,13 @@
                 "m2.2xlarge",
                 "m2.4xlarge",
                 "m3.xlarge",
-                "m3.2xlarge"
+                "m3.2xlarge",
+                "m4.large",
+                "m4.xlarge",
+                "m4.2xlarge",
+                "m4.4xlarge",
+                "m4.10xlarge",
+                "m4.16xlarge"
             ]
         },
         "HadoopMaxNodesCount": {
@@ -500,7 +538,13 @@
                 "m2.2xlarge",
                 "m2.4xlarge",
                 "m3.xlarge",
-                "m3.2xlarge"
+                "m3.2xlarge",
+                "m4.large",
+                "m4.xlarge",
+                "m4.2xlarge",
+                "m4.4xlarge",
+                "m4.10xlarge",
+                "m4.16xlarge"
             ]
         },
         "SparkSlaveInstanceType": {
@@ -514,7 +558,13 @@
                 "m2.2xlarge",
                 "m2.4xlarge",
                 "m3.xlarge",
-                "m3.2xlarge"
+                "m3.2xlarge",
+                "m4.large",
+                "m4.xlarge",
+                "m4.2xlarge",
+                "m4.4xlarge",
+                "m4.10xlarge",
+                "m4.16xlarge"
             ]
         },
         "SparkMaxNodesCount": {
@@ -612,13 +662,13 @@
         },
         "KinesisDataStreamName": {
             "Description": "Kinesis data stream name.",
-            "Default": "MyKinesisDataStream",
+            "Default": "streaming-submissions",
             "Type": "String"
         },
         "KinesisDataStreamS3Prefix": {
             "AllowedPattern": "^[0-9a-zA-Z-]+(/[0-9a-zA-Z-]+)*$",
             "Description": "Kinesis data stream S3 prefix for your streaming data stored in Datalake submissions bucket.",
-            "Default": "mydata",
+            "Default": "streaming-submissions",
             "Type": "String"
         }
     },
@@ -676,15 +726,7 @@
                         "Ref": "QSS3BucketName"
                     },
                     "QSS3KeyPrefix": {
-                        "Fn::Join": [
-                            "/",
-                            [
-                                {
-                                    "Ref": "QSS3KeyPrefix"
-                                },
-                                "submodules/quickstart-datalake-47lining/"
-                            ]
-                        ]
+                        "Fn::Sub": "${QSS3KeyPrefix}submodules/quickstart-datalake-47lining/"
                     },
                     "PrivateSubnet1ID": {
                         "Ref": "PrivateSubnet1ID"
@@ -798,6 +840,9 @@
                     },
                     "QuboleBastionIngressAccessCIDR": {
                         "Ref": "QuboleBastionIngressAccessCIDR"
+                    },
+                    "QuboleBastionInstanceType": {
+                        "Ref": "QuboleBastionInstanceType"
                     },
                     "HadoopMasterInstanceType": {
                         "Ref": "HadoopMasterInstanceType"
