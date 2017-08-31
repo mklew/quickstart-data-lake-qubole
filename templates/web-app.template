@@ -14,7 +14,8 @@
                 "t2.large",
                 "m3.large",
                 "m3.xlarge",
-                "m3.2xlarge"
+                "m3.2xlarge",
+                "m4.large"
             ],
             "ConstraintDescription": "must be a valid EC2 instance type."
         },
@@ -212,6 +213,8 @@
                 "MaxSize": {
                     "Ref": "NumWebServerInstances"
                 },
+                "HealthCheckGracePeriod" : "300",
+                "HealthCheckType" : "ELB",
                 "Cooldown": "300",
                 "DesiredCapacity": {
                     "Ref": "NumWebServerInstances"
@@ -441,6 +444,13 @@
                 ],
                 "ConnectionSettings": {
                     "IdleTimeout": "180"
+                },
+                "HealthCheck": {
+                   "HealthyThreshold" : "3",
+                   "Interval" : "10",
+                   "Target" : "TCP:2000",
+                   "Timeout" : "5",
+                   "UnhealthyThreshold" : "3"
                 }
             }
         },
