@@ -1,7 +1,7 @@
 {
-    "AWSTemplateFormatVersion" : "2010-09-09",
-    "Description" : "AWS CloudFormation templates to create S3 bucket for Qubole logging data.",
-    "Resources" : {
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "AWS CloudFormation templates to create S3 bucket for Qubole logging data.",
+    "Resources": {
         "QuboleLoggingBucket": {
             "Type": "AWS::S3::Bucket",
             "Properties": {
