@@ -3,6 +3,9 @@
     "Description": "Qubole bastion",
     "Mappings": {
         "AWSAMIRegionMap": {
+            "AMI": {
+                "QUBOLEBASTION": "qubole-bastion-hvm-amzn-linux"
+            },
             "us-east-1": {
                 "QUBOLEBASTION": "ami-fdd62b90"
             },
