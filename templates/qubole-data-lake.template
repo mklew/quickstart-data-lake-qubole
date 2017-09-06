@@ -754,7 +754,7 @@
                     "VPCID": {
                         "Ref": "VPCID"
                     },
-                    "WebApplicationPassword": "ThisPasswordIsNotUsed1"
+                    "WizardPassword": "ThisPasswordIsNotUsed1"
                 },
                 "TemplateURL": {
                     "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-datalake-47lining/templates/data-lake.template"
