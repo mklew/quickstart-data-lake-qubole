@@ -42,5 +42,13 @@
   {
       "ParameterKey": "WizardPassword",
       "ParameterValue": "$[alfred_genpass_16]"
+  },
+  {
+      "ParameterKey": "RDSPassword",
+      "ParameterValue": "$[alfred_genpass_16]"
+  },
+  {
+      "ParameterKey": "RedshiftPassword",
+      "ParameterValue": "$[alfred_genpass_16]"
   }
 ]
