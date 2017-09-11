@@ -354,8 +354,10 @@
                                             "alias aws=/usr/local/bin/aws",
                                             "cd /home/ec2-user",
                                             {
-                                                "Fn::Sub": "aws s3 sync s3://${QSS3BucketName}/${QSS3KeyPrefix} ."
+                                                "Fn::Sub": "aws s3 cp s3://${QSS3BucketName}/${QSS3KeyPrefix}assets/assets.zip ."
                                             },
+                                            "unzip assets.zip",
+                                            "rm assets.zip",
                                             {
                                                 "Fn::Sub": "aws s3 cp s3://${DatasetS3BucketName}/${DatasetS3KeyPrefix}/retail-dataset/qusql_2017-07-20.sql ."
                                             },
