@@ -166,6 +166,19 @@
                             },
                             {
                                 "Ref": "AWS::AccountId"
+                            },
+                            {
+                                "Fn::Select": [
+                                    "0",
+                                    {
+                                        "Fn::Split": [
+                                            "-",
+                                            {
+                                                "Ref": "AWS::StackName"
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
                         ]
                     ]
@@ -329,6 +342,19 @@
                                                             },
                                                             {
                                                                 "Ref": "AWS::AccountId"
+                                                            },
+                                                            {
+                                                                "Fn::Select": [
+                                                                    "0",
+                                                                    {
+                                                                        "Fn::Split": [
+                                                                            "-",
+                                                                            {
+                                                                                "Ref": "AWS::StackName"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ]
                                                             }
                                                         ]
                                                     ]
@@ -354,6 +380,19 @@
                                                             },
                                                             {
                                                                 "Ref": "AWS::AccountId"
+                                                            },
+                                                            {
+                                                                "Fn::Select": [
+                                                                    "0",
+                                                                    {
+                                                                        "Fn::Split": [
+                                                                            "-",
+                                                                            {
+                                                                                "Ref": "AWS::StackName"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ]
                                                             }
                                                         ]
                                                     ]
@@ -378,6 +417,19 @@
                             },
                             {
                                 "Ref": "AWS::AccountId"
+                            },
+                            {
+                                "Fn::Select": [
+                                    "0",
+                                    {
+                                        "Fn::Split": [
+                                            "-",
+                                            {
+                                                "Ref": "AWS::StackName"
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
                         ]
                     ]
