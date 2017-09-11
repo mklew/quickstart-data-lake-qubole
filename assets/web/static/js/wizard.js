@@ -1,4 +1,4 @@
-var LAST_STEP = 8;
+var LAST_STEP = 9;
 var currentStep = undefined;
 
 function runQuery(categoryName, buttonId) {
@@ -51,7 +51,6 @@ function refreshNextPrevButtons() {
 }
 
 function moveToStep(step) {
-    console.log(step);
     if (step <= LAST_STEP && step > 0) {
         $.post('/step', JSON.stringify({step: step}), function (data) {
             activateStep(data['current_step']);

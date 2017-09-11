@@ -183,4 +183,4 @@ if __name__ == "__main__":
     app.secret_key = os.urandom(47)
     app.config.update(config)
     Qubole.configure(api_token=config['qubole_api_token'])
-    app.run(host='0.0.0.0', port=int(config['port']), debug=True, threaded=True)
+    app.run(host='0.0.0.0', port=int(config['port']), threaded=True)
