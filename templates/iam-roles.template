@@ -156,9 +156,6 @@
         },
         "QuboleInstanceProfile": {
             "Properties": {
-                "InstanceProfileName": {
-                    "Ref": "QuboleRole"
-                },
                 "Roles": [
                     {
                         "Ref": "QuboleRole"
@@ -166,6 +163,42 @@
                 ]
             },
             "Type": "AWS::IAM::InstanceProfile"
+        },
+        "CrossAccountPolicyForQuboleRole": {
+            "Properties": {
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "iam:GetInstanceProfile",
+                            "Effect": "Allow",
+                            "Resource": {
+                                "Fn::GetAtt": [
+                                    "QuboleInstanceProfile",
+                                    "Arn"
+                                ]
+                            }
+                        },
+                        {
+                            "Action": "iam:PassRole",
+                            "Effect": "Allow",
+                            "Resource": {
+                                "Fn::GetAtt": [
+                                    "QuboleRole",
+                                    "Arn"
+                                ]
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                },
+                "PolicyName": "CrossAccountPolicy",
+                "Roles": [
+                    {
+                        "Ref": "QuboleRole"
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::Policy"
         },
         "QuboleRole": {
             "Properties": {
