@@ -18,7 +18,7 @@
             "eu-west-1": {
                 "QUBOLEBASTION": "ami-15b72466"
             },
-            "sa-east1": {
+            "sa-east-1": {
                 "QUBOLEBASTION": "ami-6f47cc03"
             },
             "ap-southeast-1": {
