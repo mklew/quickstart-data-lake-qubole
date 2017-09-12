@@ -7,11 +7,6 @@ global:
     - us-west-2
   reporting: true
 tests:
-  with-demonstration:
-    parameter_input: qubole-with-demonstration.json
-    template_file: qubole-data-lake-master.template
-    regions:
-      - us-east-1
   without-demonstration:
     parameter_input: qubole-without-demonstration.json
     template_file: qubole-data-lake-master.template
