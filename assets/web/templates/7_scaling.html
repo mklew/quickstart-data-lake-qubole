@@ -20,7 +20,8 @@
                         simultaneous queries to the {{ config['hadoop_cluster_name'] }} cluster</li>
                     <li>Switch to <a href="https://api.qubole.com/clusters" target="_blank">Clusters</a>,
                         locate the {{ config['hadoop_cluster_name'] }} cluster, click on resources at the right side and select AutoScaling logs</li>
-                    <li>This log shows how the Qubole automatically started and scale the {{ config['hadoop_cluster_name'] }} cluster. Look for
+                    <li>
+                        This log shows how Qubole automatically started and scaled the {{ config['hadoop_cluster_name'] }} cluster. Look for
                         entries similar to these:</br>
                         <pre>
 Current cluster size (excluding master node) is: 2

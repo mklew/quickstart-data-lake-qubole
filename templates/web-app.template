@@ -15,16 +15,6 @@
             "Type": "String"
         },
         "HadoopMasterInstanceType": {
-            "AllowedValues": [
-                "m1.large",
-                "m1.xlarge",
-                "m2.xlarge",
-                "m2.2xlarge",
-                "m2.4xlarge",
-                "m3.xlarge",
-                "m3.2xlarge"
-            ],
-            "Default": "m1.large",
             "Description": "The EC2 instance type for Hadoop master node.",
             "Type": "String"
         },
@@ -34,16 +24,6 @@
             "Type": "Number"
         },
         "HadoopSlaveInstanceType": {
-            "AllowedValues": [
-                "m1.large",
-                "m1.xlarge",
-                "m2.xlarge",
-                "m2.2xlarge",
-                "m2.4xlarge",
-                "m3.xlarge",
-                "m3.2xlarge"
-            ],
-            "Default": "m1.xlarge",
             "Description": "The EC2 instance type for Hadoop slave node.",
             "Type": "String"
         },
@@ -115,16 +95,6 @@
             "Type": "String"
         },
         "SparkMasterInstanceType": {
-            "AllowedValues": [
-                "m1.large",
-                "m1.xlarge",
-                "m2.xlarge",
-                "m2.2xlarge",
-                "m2.4xlarge",
-                "m3.xlarge",
-                "m3.2xlarge"
-            ],
-            "Default": "m3.xlarge",
             "Description": "The EC2 instance type for Spark master node.",
             "Type": "String"
         },
@@ -134,16 +104,6 @@
             "Type": "Number"
         },
         "SparkSlaveInstanceType": {
-            "AllowedValues": [
-                "m1.large",
-                "m1.xlarge",
-                "m2.xlarge",
-                "m2.2xlarge",
-                "m2.4xlarge",
-                "m3.xlarge",
-                "m3.2xlarge"
-            ],
-            "Default": "m3.2xlarge",
             "Description": "The EC2 instance type for Spark slave node.",
             "Type": "String"
         },
@@ -394,8 +354,10 @@
                                             "alias aws=/usr/local/bin/aws",
                                             "cd /home/ec2-user",
                                             {
-                                                "Fn::Sub": "aws s3 sync s3://${QSS3BucketName}/${QSS3KeyPrefix} ."
+                                                "Fn::Sub": "aws s3 cp s3://${QSS3BucketName}/${QSS3KeyPrefix}assets/assets.zip ."
                                             },
+                                            "unzip assets.zip",
+                                            "rm assets.zip",
                                             {
                                                 "Fn::Sub": "aws s3 cp s3://${DatasetS3BucketName}/${DatasetS3KeyPrefix}/retail-dataset/qusql_2017-07-20.sql ."
                                             },

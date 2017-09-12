@@ -354,7 +354,7 @@
                 "m4.10xlarge",
                 "m4.16xlarge"
             ],
-            "Default": "m1.large",
+            "Default": "m3.xlarge",
             "Description": "The EC2 instance type for Hadoop master node.",
             "Type": "String"
         },
@@ -379,7 +379,7 @@
                 "m4.10xlarge",
                 "m4.16xlarge"
             ],
-            "Default": "m1.xlarge",
+            "Default": "m3.xlarge",
             "Description": "The EC2 instance type for Hadoop slave node.",
             "Type": "String"
         },
